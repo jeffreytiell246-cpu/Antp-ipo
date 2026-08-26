@@ -21,7 +21,7 @@ import sequoiaLogo from "./images/sequoia-logo.jpeg";
 import temasekLogo from "./images/Temasek-logo.jpg";
 import ipoLogo from "./images/ipo logo2.jpg";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5049/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 const AuthContext = createContext(null);
 
 const stats = [
