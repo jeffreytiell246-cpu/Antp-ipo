@@ -1,0 +1,17 @@
+{
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "latest",
+    "bootstrap": "^5.3.8",
+    "lucide-react": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "react-hot-toast": "^2.6.0",
+    "react-router-dom": "^7.18.2",
+    "vite": "latest"
+  }
+}
