@@ -659,7 +659,6 @@ function AuthPage({ mode }) {
   const [form, setForm] = useState({
     name: "",
     brokerageName: "",
-    brokerageAccountNumber: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -688,12 +687,11 @@ function AuthPage({ mode }) {
 
       const payload = isSignup
         ? {
-            name: form.name,
-            brokerageName: form.brokerageName,
-            brokerageAccountNumber: form.brokerageAccountNumber,
-            email: form.email,
-            password: form.password,
-          }
+          name: form.name,
+          brokerageName: form.brokerageName,
+          email: form.email,
+          password: form.password,
+        }
         : { email: form.email, password: form.password };
       const data = await apiRequest(`/auth/${mode}`, {
         method: "POST",
@@ -732,10 +730,6 @@ function AuthPage({ mode }) {
                       <div className="mb-3">
                         <label className="form-label" htmlFor="brokerageName">Brokerage name</label>
                         <input id="brokerageName" name="brokerageName" className="form-control" value={form.brokerageName} onChange={updateForm} required />
-                      </div>
-                      <div className="mb-3">
-                        <label className="form-label" htmlFor="brokerageAccountNumber">Brokerage account number</label>
-                        <input id="brokerageAccountNumber" name="brokerageAccountNumber" className="form-control" value={form.brokerageAccountNumber} onChange={updateForm} required />
                       </div>
                     </>
                   )}
@@ -1431,8 +1425,10 @@ function AdminPaymentPage() {
   const [reviewNote, setReviewNote] = useState("");
   const [sellRequests, setSellRequests] = useState([]);
   const [sellReviewNote, setSellReviewNote] = useState("");
+  const [users, setUsers] = useState([]);
   const [isLoadingReviews, setIsLoadingReviews] = useState(false);
   const [isLoadingSellReviews, setIsLoadingSellReviews] = useState(false);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const availableNetworks = Object.keys(paymentDestinations[asset]);
   const selectedNetwork = availableNetworks.includes(network) ? network : availableNetworks[0];
 
@@ -1496,6 +1492,26 @@ function AdminPaymentPage() {
       toast.error(error.message);
     } finally {
       setIsLoadingReviews(false);
+    }
+  }
+
+  async function loadUsers() {
+    setIsLoadingUsers(true);
+
+    try {
+      const data = await apiRequest("/users/admin", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "x-admin-secret": adminKey,
+        },
+      });
+
+      setUsers(data.users);
+      toast.success("Users loaded.");
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setIsLoadingUsers(false);
     }
   }
 
@@ -1616,6 +1632,46 @@ function AdminPaymentPage() {
                 <button className="btn btn-success btn-buy rounded-pill px-5 mt-4" type="submit">Save payment destination</button>
               </div>
             </form>
+
+            <div className="card auth-card mt-4">
+              <div className="card-body p-4 p-md-5">
+                <div className="d-flex flex-column flex-md-row justify-content-between gap-3 mb-4">
+                  <div>
+                    <Eyebrow>Users</Eyebrow>
+                    <h2 className="display-serif profile-name mt-2 mb-0">New users</h2>
+                  </div>
+                  <button className="btn btn-outline-dark rounded-pill px-4" type="button" onClick={loadUsers} disabled={!adminKey || isLoadingUsers}>
+                    {isLoadingUsers ? "Loading..." : "Load users"}
+                  </button>
+                </div>
+
+                <div className="vstack gap-3">
+                  {users.length ? (
+                    users.map((registeredUser) => (
+                      <div className="review-item" key={registeredUser.id}>
+                        <div className="d-flex flex-column flex-md-row justify-content-between gap-3">
+                          <div>
+                            <strong>{registeredUser.name || "User"}</strong>
+                            <span className="d-block text-fog small">{registeredUser.email}</span>
+                            <span className="d-block text-fog small">{registeredUser.brokerageName || "No brokerage added"}</span>
+                          </div>
+                          <span className={`badge rounded-pill ${registeredUser.isAdmin ? "text-bg-dark" : "text-bg-light"}`}>
+                            {registeredUser.isAdmin ? "Admin" : "User"}
+                          </span>
+                        </div>
+                        <div className="review-grid mt-3">
+                          <span><strong>{formatDate(registeredUser.createdAt)}</strong> joined</span>
+                          <span><strong>{formatDate(registeredUser.updatedAt)}</strong> updated</span>
+                          <span><strong>{registeredUser.brokerageAccountNumber || "Not provided"}</strong> brokerage account</span>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-fog text-center py-4">Enter the admin key and load new users.</div>
+                  )}
+                </div>
+              </div>
+            </div>
 
             <div className="card auth-card mt-4">
               <div className="card-body p-4 p-md-5">

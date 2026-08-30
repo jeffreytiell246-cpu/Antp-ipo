@@ -10,6 +10,7 @@ import paymentDestinationRoutes from "./routes/paymentDestinations.js";
 import paymentRequestRoutes from "./routes/paymentRequests.js";
 import profileRoutes from "./routes/profile.js";
 import sellRequestRoutes from "./routes/sellRequests.js";
+import userRoutes from "./routes/users.js";
 
 dotenv.config();
 
@@ -60,6 +61,8 @@ app.use("/api/profile", requireDatabase);
 app.use("/api/profile", profileRoutes);
 app.use("/api/sell-requests", requireDatabase);
 app.use("/api/sell-requests", sellRequestRoutes);
+app.use("/api/users", requireDatabase);
+app.use("/api/users", userRoutes);
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(clientDistPath));

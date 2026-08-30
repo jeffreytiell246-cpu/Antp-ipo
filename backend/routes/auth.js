@@ -16,10 +16,10 @@ function authPayload(user) {
 
 router.post("/signup", async (req, res, next) => {
   try {
-    const { brokerageAccountNumber, brokerageName, name, email, password } = req.body || {};
+    const { brokerageName, name, email, password } = req.body || {};
 
-    if (!name || !brokerageName || !brokerageAccountNumber || !email || !password) {
-      return res.status(400).json({ message: "Full name, brokerage name, brokerage account number, email, and password are required." });
+    if (!name || !brokerageName || !email || !password) {
+      return res.status(400).json({ message: "Full name, brokerage name, email, and password are required." });
     }
 
     if (password.length < 8) {
@@ -38,7 +38,6 @@ router.post("/signup", async (req, res, next) => {
       name: name.trim(),
       email: normalizedEmail,
       brokerageName: brokerageName.trim(),
-      brokerageAccountNumber: brokerageAccountNumber.trim(),
       passwordHash,
       role: isAdminEmail(normalizedEmail) ? "admin" : "user",
     });
