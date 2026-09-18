@@ -662,6 +662,7 @@ function AuthPage({ mode }) {
     email: "",
     password: "",
     confirmPassword: "",
+    referralCode: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const isSignup = mode === "signup";
@@ -730,6 +731,10 @@ function AuthPage({ mode }) {
                       <div className="mb-3">
                         <label className="form-label" htmlFor="brokerageName">Brokerage name</label>
                         <input id="brokerageName" name="brokerageName" className="form-control" value={form.brokerageName} onChange={updateForm} required />
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label" htmlFor="referralCode">Referral code <span className="text-fog">(optional)</span></label>
+                        <input id="referralCode" name="referralCode" className="form-control" value={form.referralCode} onChange={updateForm} autoCapitalize="characters" placeholder="Referral code" />
                       </div>
                     </>
                   )}
