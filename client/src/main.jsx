@@ -348,7 +348,7 @@ function BuyButton({ large = false }) {
   );
 }
 
-function CustomSelect({ id, label, options, value, onChange }) {
+function CustomSelect({ disabled = false, id, label, options, placeholder = "Select an option", value, onChange }) {
   const [isOpen, setIsOpen] = useState(false);
 
   function selectOption(option) {
@@ -364,10 +364,11 @@ function CustomSelect({ id, label, options, value, onChange }) {
           className="custom-select-button"
           id={id}
           type="button"
+          disabled={disabled}
           onClick={() => setIsOpen((current) => !current)}
           aria-expanded={isOpen}
         >
-          <span>{value}</span>
+          <span>{value || placeholder}</span>
           <span className="custom-select-caret">⌄</span>
         </button>
         {isOpen && (
@@ -1164,31 +1165,63 @@ function BuyIpoPage() {
   const { investorCount, recentPurchases } = useDemandActivity(3);
   const [paymentDestinations, setPaymentDestinations] = useState(defaultPaymentDestinations);
   const [amount, setAmount] = useState(5000);
-  const [paymentAsset, setPaymentAsset] = useState("USDT");
-  const [network, setNetwork] = useState("Ethereum ERC-20");
+  const [paymentAsset, setPaymentAsset] = useState("");
+  const [network, setNetwork] = useState("");
   const [senderWallet, setSenderWallet] = useState("");
   const [txHash, setTxHash] = useState("");
   const [proofImage, setProofImage] = useState("");
+  const [isLoadingAddress, setIsLoadingAddress] = useState(false);
   const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
   const estimatedPrice = 94.2;
   const cryptoRates = { USDT: 1, USDC: 1, ETH: 3200, BTC: 65000, SOL: 150 };
   const estimatedShares = Math.floor(Number(amount || 0) / estimatedPrice);
-  const cryptoDue = Number(amount || 0) / cryptoRates[paymentAsset];
-  const availableNetworks = Object.keys(paymentDestinations[paymentAsset]);
+  const cryptoDue = paymentAsset ? Number(amount || 0) / cryptoRates[paymentAsset] : 0;
+  const availableNetworks = paymentAsset ? Object.keys(paymentDestinations[paymentAsset] || {}) : [];
   const selectedNetwork = availableNetworks.includes(network) ? network : availableNetworks[0];
-  const destination = paymentDestinations[paymentAsset][selectedNetwork];
+  const destination = paymentAsset && selectedNetwork
+    ? paymentDestinations[paymentAsset]?.[selectedNetwork] || { address: "", qrCode: "" }
+    : { address: "", qrCode: "" };
 
   useEffect(() => {
+    if (!paymentAsset || !selectedNetwork) {
+      setIsLoadingAddress(false);
+      return undefined;
+    }
+
+    let isCancelled = false;
+
+    setIsLoadingAddress(true);
     apiRequest("/payment-destinations")
-      .then(({ destinations }) => setPaymentDestinations(mergePaymentDestinations(destinations)))
-      .catch(() => setPaymentDestinations(defaultPaymentDestinations));
-  }, []);
+      .then(({ destinations }) => {
+        if (!isCancelled) {
+          setPaymentDestinations(mergePaymentDestinations(destinations));
+        }
+      })
+      .catch(() => {
+        if (!isCancelled) {
+          setPaymentDestinations(defaultPaymentDestinations);
+        }
+      })
+      .finally(() => {
+        if (!isCancelled) {
+          setIsLoadingAddress(false);
+        }
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [paymentAsset, selectedNetwork]);
 
   useEffect(() => {
+    if (!paymentAsset) {
+      return;
+    }
+
     if (!availableNetworks.includes(network)) {
       setNetwork(availableNetworks[0]);
     }
-  }, [availableNetworks, network]);
+  }, [availableNetworks, network, paymentAsset]);
 
   if (isCheckingSession) {
     return <main className="auth-page"><div className="container text-center text-fog">Checking session...</div></main>;
@@ -1212,6 +1245,17 @@ function BuyIpoPage() {
 
   async function handleSubmit(event) {
     event.preventDefault();
+
+    if (!paymentAsset || !selectedNetwork || !destination.address) {
+      toast.error("Select a payment method and network first.");
+      return;
+    }
+
+    if (isLoadingAddress) {
+      toast.error("Wait for the payment address to finish loading.");
+      return;
+    }
+
     setIsSubmittingPayment(true);
 
     try {
@@ -1252,6 +1296,25 @@ function BuyIpoPage() {
     }
   }
 
+  function handlePaymentAssetChange(nextAsset) {
+    if (nextAsset === paymentAsset) {
+      return;
+    }
+
+    setIsLoadingAddress(true);
+    setNetwork("");
+    setPaymentAsset(nextAsset);
+  }
+
+  function handleNetworkChange(nextNetwork) {
+    if (nextNetwork === selectedNetwork) {
+      return;
+    }
+
+    setIsLoadingAddress(true);
+    setNetwork(nextNetwork);
+  }
+
   return (
     <main className="buy-page">
       <section className="buy-page-hero">
@@ -1263,8 +1326,8 @@ function BuyIpoPage() {
               <p className="text-fog fs-5 mb-4">Choose a payment asset, review the payment instructions, and submit your transaction for review.</p>
               <div className="d-flex flex-wrap gap-3 mono small">
                 <span className="buy-metric"><strong>$94.20</strong> estimated price</span>
-                <span className="buy-metric"><strong>{paymentAsset}</strong> payment asset</span>
-                <span className="buy-metric"><strong>{selectedNetwork}</strong></span>
+                <span className="buy-metric"><strong>{paymentAsset || "Not selected"}</strong> payment asset</span>
+                <span className="buy-metric"><strong>{selectedNetwork || "Select a method"}</strong></span>
               </div>
             </div>
             <div className="col-lg-6">
@@ -1337,7 +1400,8 @@ function BuyIpoPage() {
                       label="Payment method"
                       options={["USDT", "USDC", "ETH", "BTC", "SOL"]}
                       value={paymentAsset}
-                      onChange={setPaymentAsset}
+                      placeholder="Select payment method"
+                      onChange={handlePaymentAssetChange}
                     />
                   </div>
 
@@ -1347,7 +1411,9 @@ function BuyIpoPage() {
                       label="Network"
                       options={availableNetworks}
                       value={selectedNetwork}
-                      onChange={setNetwork}
+                      placeholder={paymentAsset ? "Select network" : "Select payment method first"}
+                      disabled={!paymentAsset}
+                      onChange={handleNetworkChange}
                     />
                   </div>
 
@@ -1370,17 +1436,28 @@ function BuyIpoPage() {
                 <div className="card-body p-4">
                   <Eyebrow>Make payment</Eyebrow>
                   <div className="wallet-placeholder mt-4">
-                    <span className="stat-label">Send {paymentAsset} to</span>
-                    <div className="wallet-copy-row">
-                      <strong>{destination.address}</strong>
-                      <button className="wallet-copy-btn" type="button" onClick={handleCopyWallet} aria-label="Copy wallet address">
-                        <Copy size={17} aria-hidden="true" />
-                      </button>
+                    <span className="stat-label">{!paymentAsset || isLoadingAddress ? "Payment address" : `Send ${paymentAsset} to`}</span>
+                    <div className="wallet-address-content">
+                      {!paymentAsset ? (
+                        <div className="wallet-empty">Select a payment method to view the address.</div>
+                      ) : isLoadingAddress ? (
+                        <div className="wallet-loading" role="status" aria-live="polite">
+                          <span className="spinner-border spinner-border-sm" aria-hidden="true" />
+                          <span>Loading payment address...</span>
+                        </div>
+                      ) : (
+                        <div className="wallet-copy-row">
+                          <strong>{destination.address}</strong>
+                          <button className="wallet-copy-btn" type="button" onClick={handleCopyWallet} aria-label="Copy wallet address">
+                            <Copy size={17} aria-hidden="true" />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
-                  <div className="buy-preview-row"><span>Payment method</span><strong>{paymentAsset}</strong></div>
-                  <div className="buy-preview-row"><span>Network</span><strong>{selectedNetwork}</strong></div>
-                  <div className="buy-preview-row"><span>Crypto due</span><strong>{cryptoDue.toLocaleString(undefined, { maximumFractionDigits: paymentAsset === "BTC" || paymentAsset === "ETH" || paymentAsset === "SOL" ? 6 : 2 })} {paymentAsset}</strong></div>
+                  <div className="buy-preview-row"><span>Payment method</span><strong>{paymentAsset || "Not selected"}</strong></div>
+                  <div className="buy-preview-row"><span>Network</span><strong>{selectedNetwork || "Not selected"}</strong></div>
+                  <div className="buy-preview-row"><span>Crypto due</span><strong>{paymentAsset ? `${cryptoDue.toLocaleString(undefined, { maximumFractionDigits: paymentAsset === "BTC" || paymentAsset === "ETH" || paymentAsset === "SOL" ? 6 : 2 })} ${paymentAsset}` : "Not available"}</strong></div>
                   <div className="buy-preview-row"><span>ANTP estimate</span><strong>{estimatedShares.toLocaleString()} shares</strong></div>
                 </div>
               </div>
@@ -1406,7 +1483,7 @@ function BuyIpoPage() {
                     </div>
                   </div>
 
-                  <button className="btn btn-success btn-buy rounded-pill px-5" type="submit" disabled={isSubmittingPayment}>
+                  <button className="btn btn-success btn-buy rounded-pill px-5" type="submit" disabled={isSubmittingPayment || isLoadingAddress || !paymentAsset || !selectedNetwork}>
                     {isSubmittingPayment ? "Submitting..." : "Submit payment for review"}
                   </button>
                 </div>
