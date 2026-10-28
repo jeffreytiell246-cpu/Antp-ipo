@@ -76,7 +76,7 @@ router.post("/", requireAuth, async (req, res, next) => {
     }
 
     if (!Number.isFinite(numericEstimatedShares) || numericEstimatedShares < 0) {
-      return res.status(400).json({ message: "Enter a valid ANTP estimate." });
+      return res.status(400).json({ message: "Enter a valid $ANT estimate." });
     }
 
     const request = await PaymentRequest.create({

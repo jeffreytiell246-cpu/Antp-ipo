@@ -91,7 +91,7 @@ router.post("/", requireAuth, async (req, res, next) => {
     const numericShares = Math.floor(Number(shares));
 
     if (!Number.isFinite(numericShares) || numericShares <= 0) {
-      return res.status(400).json({ message: "Enter a valid ANTP amount to sell." });
+      return res.status(400).json({ message: "Enter a valid $ANT amount to sell." });
     }
 
     if (!["brokerage_account", "crypto", "bank"].includes(cleanPayoutMethod)) {
@@ -113,7 +113,7 @@ router.post("/", requireAuth, async (req, res, next) => {
     const balance = await getShareBalance(req.user._id);
 
     if (numericShares > balance.availableShares) {
-      return res.status(400).json({ message: `You can sell up to ${balance.availableShares.toLocaleString()} approved ANTP.` });
+      return res.status(400).json({ message: `You can sell up to ${balance.availableShares.toLocaleString()} approved $ANT.` });
     }
 
     const request = await SellRequest.create({

@@ -343,7 +343,7 @@ function BuyButton({ large = false }) {
   return (
     <Link to="/buy" className={`btn btn-success btn-buy rounded-pill fw-bold d-inline-flex align-items-center gap-2 ${large ? "btn-lg px-5" : "px-4"}`}>
       <Rocket size={large ? 22 : 19} aria-hidden="true" />
-      Buy ANTP now
+      Buy $ANT now
     </Link>
   );
 }
@@ -448,7 +448,7 @@ function NavBar() {
           <a className="nav-link d-none d-lg-inline" href="/#growth">Growth</a>
           <a className="nav-link d-none d-lg-inline" href="/#backers">Backers</a>
           <Link className="nav-link buy-link fw-bold d-none d-md-inline" to="/buy">Buy IPO</Link>
-          {user && <Link className="nav-link d-none d-md-inline" to="/sell">Sell ANTP</Link>}
+          {user && <Link className="nav-link d-none d-md-inline" to="/sell">Sell $ANT</Link>}
           {user?.isAdmin && <Link className="nav-link d-none d-md-inline" to="/admin">Admin</Link>}
           {user ? (
             <div className="profile-menu">
@@ -469,7 +469,7 @@ function NavBar() {
                   <div className="profile-dropdown-email">{user.email}</div>
                   <Link to="/profile" onClick={closeMenus}>Account settings</Link>
                   <Link to="/shares" onClick={closeMenus}>Shares purchased</Link>
-                  <Link to="/sell" onClick={closeMenus}>Sell ANTP</Link>
+                  <Link to="/sell" onClick={closeMenus}>Sell $ANT</Link>
                   <button type="button" onClick={handleLogout}>Logout</button>
                 </div>
               )}
@@ -488,7 +488,7 @@ function NavBar() {
             <a className="mobile-nav-link" href="/#growth" onClick={closeMenus}>Growth</a>
             <a className="mobile-nav-link" href="/#backers" onClick={closeMenus}>Backers</a>
             <Link className="mobile-nav-link buy-link fw-bold" to="/buy" onClick={closeMenus}>Buy IPO</Link>
-            {user && <Link className="mobile-nav-link" to="/sell" onClick={closeMenus}>Sell ANTP</Link>}
+            {user && <Link className="mobile-nav-link" to="/sell" onClick={closeMenus}>Sell $ANT</Link>}
             {user?.isAdmin && <Link className="mobile-nav-link" to="/admin" onClick={closeMenus}>Admin</Link>}
             {!user && <Link className="mobile-nav-link" to="/login" onClick={closeMenus}>Login</Link>}
           </div>
@@ -933,7 +933,7 @@ function SharesPurchasedPage() {
           <div className="col-lg-5">
             <Eyebrow>Portfolio</Eyebrow>
             <h1 className="display-serif auth-title mt-2 mb-3">Shares purchased</h1>
-            <p className="text-fog fs-5">Track completed ANTP purchase records linked to your account.</p>
+            <p className="text-fog fs-5">Track completed $ANT purchase records linked to your account.</p>
           </div>
           <div className="col-lg-7">
             <div className="card auth-card shares-card">
@@ -943,7 +943,7 @@ function SharesPurchasedPage() {
                     <Rocket size={30} aria-hidden="true" />
                     <h2 className="display-serif profile-name mb-2">No purchases yet</h2>
                     <p className="text-fog mb-4">Your completed purchase records will appear here after payment review.</p>
-                    <Link className="btn btn-success btn-buy rounded-pill px-4" to="/buy">Buy ANTP</Link>
+                    <Link className="btn btn-success btn-buy rounded-pill px-4" to="/buy">Buy $ANT</Link>
                   </div>
                 )}
                 <div className="table-responsive mt-4">
@@ -1069,11 +1069,11 @@ function SellAntpPage() {
         <div className="row g-5 align-items-start">
           <div className="col-lg-5">
             <Eyebrow>Liquidity</Eyebrow>
-            <h1 className="display-serif auth-title mt-2 mb-3">Sell ANTP</h1>
-            <p className="text-fog fs-5">Submit a sell request for review using your approved ANTP balance.</p>
+            <h1 className="display-serif auth-title mt-2 mb-3">Sell $ANT</h1>
+            <p className="text-fog fs-5">Submit a sell request for review using your approved $ANT balance.</p>
             <div className="sell-balance-panel mt-4">
               <span className="stat-label">Available to sell</span>
-              <strong>{isLoadingSell ? "..." : balance.availableShares.toLocaleString()} ANTP</strong>
+              <strong>{isLoadingSell ? "..." : balance.availableShares.toLocaleString()} $ANT</strong>
               <p className="text-fog mb-0">Approved: {balance.approvedShares.toLocaleString()} · In review/paid: {balance.committedSellShares.toLocaleString()}</p>
             </div>
           </div>
@@ -1081,7 +1081,7 @@ function SellAntpPage() {
             <form className="card auth-card" onSubmit={handleSubmit}>
               <div className="card-body p-4 p-md-5">
                 <div className="mb-4">
-                  <label className="form-label" htmlFor="sellShares">ANTP amount to sell</label>
+                  <label className="form-label" htmlFor="sellShares">$ANT amount to sell</label>
                   <input className="form-control form-control-lg" id="sellShares" min="1" max={balance.availableShares || undefined} type="number" value={shares} onChange={(event) => setShares(event.target.value)} required />
                 </div>
 
@@ -1135,7 +1135,7 @@ function SellAntpPage() {
                       ) : requests.length ? (
                         requests.map((request) => (
                           <tr key={request.id}>
-                            <td>{request.shares.toLocaleString()} ANTP</td>
+                            <td>{request.shares.toLocaleString()} $ANT</td>
                             <td>
                               <strong>{statusLabel(request.payoutMethod)}</strong>
                               <span className="d-block text-fog small">{request.brokerageName ? `${request.brokerageName} ${request.brokerageAccountNumber}` : "Brokerage account"}</span>
@@ -1322,7 +1322,7 @@ function BuyIpoPage() {
           <div className="row align-items-center g-5">
             <div className="col-lg-6">
               <Eyebrow>Crypto checkout</Eyebrow>
-              <h1 className="display-serif my-3">Buy ANTP with crypto.</h1>
+              <h1 className="display-serif my-3">Buy $ANT with crypto.</h1>
               <p className="text-fog fs-5 mb-4">Choose a payment asset, review the payment instructions, and submit your transaction for review.</p>
               <div className="d-flex flex-wrap gap-3 mono small">
                 <span className="buy-metric"><strong>$94.20</strong> estimated price</span>
@@ -1458,7 +1458,7 @@ function BuyIpoPage() {
                   <div className="buy-preview-row"><span>Payment method</span><strong>{paymentAsset || "Not selected"}</strong></div>
                   <div className="buy-preview-row"><span>Network</span><strong>{selectedNetwork || "Not selected"}</strong></div>
                   <div className="buy-preview-row"><span>Crypto due</span><strong>{paymentAsset ? `${cryptoDue.toLocaleString(undefined, { maximumFractionDigits: paymentAsset === "BTC" || paymentAsset === "ETH" || paymentAsset === "SOL" ? 6 : 2 })} ${paymentAsset}` : "Not available"}</strong></div>
-                  <div className="buy-preview-row"><span>ANTP estimate</span><strong>{estimatedShares.toLocaleString()} shares</strong></div>
+                  <div className="buy-preview-row"><span>$ANT estimate</span><strong>{estimatedShares.toLocaleString()} shares</strong></div>
                 </div>
               </div>
               {/* <p className="text-fog small mt-3 mb-0">Use a verified wallet address only. This interface is a checkout design and does not broadcast transactions.</p> */}
@@ -1786,7 +1786,7 @@ function AdminPaymentPage() {
                         </div>
                         <div className="review-grid mt-3">
                           <span><strong>${request.amountUsd.toLocaleString()}</strong> amount</span>
-                          <span><strong>{request.estimatedShares.toLocaleString()}</strong> ANTP</span>
+                          <span><strong>{request.estimatedShares.toLocaleString()}</strong> $ANT</span>
                           <span><strong>{request.paymentAsset}</strong> {request.network}</span>
                           <span><strong>{formatDate(request.createdAt)}</strong></span>
                         </div>
@@ -1853,7 +1853,7 @@ function AdminPaymentPage() {
                           <span className={`badge rounded-pill ${statusBadgeClass(request.status)}`}>{statusLabel(request.status)}</span>
                         </div>
                         <div className="review-grid mt-3">
-                          <span><strong>{request.shares.toLocaleString()}</strong> ANTP</span>
+                          <span><strong>{request.shares.toLocaleString()}</strong> $ANT</span>
                           <span><strong>{statusLabel(request.payoutMethod)}</strong> payout</span>
                           <span><strong>{request.brokerageName || "Brokerage"}</strong> {request.brokerageAccountNumber}</span>
                           <span><strong>{formatDate(request.createdAt)}</strong></span>
@@ -1905,7 +1905,7 @@ function LandingPage() {
               </div>
               <div className="ticker-row d-flex flex-wrap gap-3 mt-4 small">
                 <span>Launching on NYSE</span>
-                <span>Ticker: <strong>ANTP</strong></span>
+                <span>Ticker: <strong>$ANT</strong></span>
                 <span>Expected first-day pop: +250%</span>
               </div>
             </div>
@@ -2077,7 +2077,7 @@ function LandingPage() {
                 <div className="card-body p-4">
                   <p><strong>Offering size:</strong> $100B (5% of company)</p>
                   <p><strong>Price per share:</strong> $104.20</p>
-                  <p><strong>Ticker:</strong> ANTP (NYSE)</p>
+                  <p><strong>Ticker:</strong> $ANT (NYSE)</p>
                   <p className="mb-0"><strong>Lock-up period:</strong> None listed for early access participants</p>
                 </div>
               </div>
