@@ -1377,7 +1377,7 @@ function BuyIpoPage() {
                       <input
                         className="form-control"
                         id="investmentAmount"
-                        min="2000"
+                        min="1000"
                         step="100"
                         type="number"
                         value={amount}
@@ -1386,7 +1386,7 @@ function BuyIpoPage() {
                       />
                     </div>
                     <div className="d-flex flex-wrap gap-2 mt-3">
-                      {[2000, 5000, 10000, 25000, 40000, 100000].map((preset) => (
+                      {[1000, 5000, 10000, 25000, 40000, 100000].map((preset) => (
                         <button className="btn btn-outline-dark btn-sm rounded-pill px-3" type="button" onClick={() => setAmount(preset)} key={preset}>
                           ${preset.toLocaleString()}
                         </button>
@@ -1929,7 +1929,7 @@ function LandingPage() {
             </div>
           </div>
           <CommitmentStats />
-          <small className="mono d-block mt-3">Minimum investment: $2,000 · No lock-up period</small>
+          <small className="mono d-block mt-3">Minimum investment: $1,000 · No lock-up period</small>
         </div>
       </section>
 

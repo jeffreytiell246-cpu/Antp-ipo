@@ -67,8 +67,8 @@ router.post("/", requireAuth, async (req, res, next) => {
       return res.status(400).json({ message: "Payment method, network, destination wallet, and transaction hash are required." });
     }
 
-    if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
-      return res.status(400).json({ message: "Enter a valid purchase amount." });
+    if (!Number.isFinite(numericAmount) || numericAmount < 1000) {
+      return res.status(400).json({ message: "Minimum investment is $1,000." });
     }
 
     if (!Number.isFinite(numericCryptoDue) || numericCryptoDue <= 0) {
